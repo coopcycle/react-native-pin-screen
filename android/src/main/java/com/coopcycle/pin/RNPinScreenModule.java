@@ -6,6 +6,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 
+import android.os.Build;
 import android.view.WindowManager;
 import android.app.Activity;
 
@@ -30,10 +31,14 @@ public class RNPinScreenModule extends ReactContextBaseJavaModule {
       activity.runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          activity.getWindow().addFlags(
-            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
-            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-          );
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            activity.setShowWhenLocked(true);
+          } else {
+            activity.getWindow().addFlags(
+              WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+            );
+          }
         }
       });
     }
@@ -42,14 +47,18 @@ public class RNPinScreenModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void unpin() {
     final Activity activity = getCurrentActivity();
-      if (activity != null) {
-        activity.runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
+    if (activity != null) {
+      activity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            activity.setShowWhenLocked(false);
+          } else {
             activity.getWindow().clearFlags(
               WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
-              WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-          );
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+            );
+          }
         }
       });
     }
